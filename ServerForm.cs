@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+<<<<<<< HEAD
 using System.Linq;
+=======
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -18,17 +21,28 @@ namespace ChatServer
 
         TcpListener listener;
         List<TcpClient> clients = new List<TcpClient>();
+<<<<<<< HEAD
         Dictionary<TcpClient, string> clientNames = new Dictionary<TcpClient, string>();
+=======
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
         bool isRunning = false;
 
         public Form1()
         {
+<<<<<<< HEAD
             this.Text = "Chat Server (Private + Multi-client)";
+=======
+            this.Text = "Chat Server (Multi-client)";
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             this.Size = new Size(600, 450);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.WhiteSmoke;
 
+<<<<<<< HEAD
             // --- Nút Start Server ---
+=======
+            // Nút Start Server
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             btnStart = new Button()
             {
                 Text = "Start Server",
@@ -39,7 +53,11 @@ namespace ChatServer
             };
             btnStart.Click += BtnStart_Click;
 
+<<<<<<< HEAD
             // --- Nút Stop Server ---
+=======
+            // Nút Stop Server
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             btnStop = new Button()
             {
                 Text = "Stop Server",
@@ -51,7 +69,11 @@ namespace ChatServer
             };
             btnStop.Click += BtnStop_Click;
 
+<<<<<<< HEAD
             // --- Log ---
+=======
+            // Textbox hiển thị log
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             txtLog = new TextBox()
             {
                 Multiline = true,
@@ -64,7 +86,11 @@ namespace ChatServer
                 ForeColor = Color.LightGreen
             };
 
+<<<<<<< HEAD
             // --- Danh sách client ---
+=======
+            // Danh sách client
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             lstClients = new ListBox()
             {
                 Location = new Point(440, 70),
@@ -76,7 +102,11 @@ namespace ChatServer
 
             Label lblClients = new Label()
             {
+<<<<<<< HEAD
                 Text = "Connected Users",
+=======
+                Text = "Connected Clients",
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
                 Location = new Point(440, 40),
                 AutoSize = true,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
@@ -104,7 +134,10 @@ namespace ChatServer
                 foreach (var c in clients)
                     c.Close();
                 clients.Clear();
+<<<<<<< HEAD
                 clientNames.Clear();
+=======
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             }
             lstClients.Items.Clear();
             AppendLog("Server stopped.");
@@ -125,6 +158,10 @@ namespace ChatServer
                     TcpClient client = listener.AcceptTcpClient();
                     lock (clients) clients.Add(client);
                     AppendLog("A new client connected.");
+<<<<<<< HEAD
+=======
+                    UpdateClientList();
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
 
                     Thread clientThread = new Thread(HandleClient);
                     clientThread.IsBackground = true;
@@ -146,6 +183,7 @@ namespace ChatServer
                 while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
                 {
                     string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+<<<<<<< HEAD
 
                     // Nếu là tin nhắn NAME:
                     if (message.StartsWith("NAME:"))
@@ -163,10 +201,15 @@ namespace ChatServer
 
                     // Xử lý tin nhắn
                     ProcessMessage(message, client);
+=======
+                    AppendLog("Received: " + message);
+                    Broadcast(message, client);
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
                 }
             }
             catch
             {
+<<<<<<< HEAD
                 if (clientNames.ContainsKey(client))
                 {
                     string name = clientNames[client];
@@ -227,6 +270,11 @@ namespace ChatServer
                 string normalMsg = $"{senderName}: {message}";
                 AppendLog(normalMsg);
                 Broadcast(normalMsg, sender);
+=======
+                lock (clients) clients.Remove(client);
+                AppendLog("A client disconnected.");
+                UpdateClientList();
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             }
         }
 
@@ -245,6 +293,7 @@ namespace ChatServer
             }
         }
 
+<<<<<<< HEAD
         void SendToClient(string message, TcpClient client)
         {
             try
@@ -255,22 +304,41 @@ namespace ChatServer
             catch { }
         }
 
+=======
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
         void AppendLog(string msg)
         {
             if (txtLog.InvokeRequired)
             {
+<<<<<<< HEAD
                 txtLog.Invoke(new Action(() => AppendLog(msg)));
                 return;
             }
             txtLog.AppendText(msg + Environment.NewLine);
             txtLog.SelectionStart = txtLog.Text.Length;
             txtLog.ScrollToCaret();
+=======
+                txtLog.Invoke(new Action(() =>
+                {
+                    txtLog.AppendText(msg + Environment.NewLine);
+                    txtLog.SelectionStart = txtLog.Text.Length;
+                    txtLog.ScrollToCaret();
+                }));
+            }
+            else
+            {
+                txtLog.AppendText(msg + Environment.NewLine);
+                txtLog.SelectionStart = txtLog.Text.Length;
+                txtLog.ScrollToCaret();
+            }
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
         }
 
         void UpdateClientList()
         {
             if (lstClients.InvokeRequired)
             {
+<<<<<<< HEAD
                 lstClients.Invoke(new Action(UpdateClientList));
                 return;
             }
@@ -280,6 +348,24 @@ namespace ChatServer
             {
                 foreach (var kv in clientNames)
                     lstClients.Items.Add(kv.Value);
+=======
+                lstClients.Invoke(new Action(() =>
+                {
+                    lstClients.Items.Clear();
+                    lock (clients)
+                    {
+                        foreach (var c in clients) lstClients.Items.Add(c.Client.RemoteEndPoint.ToString());
+                    }
+                }));
+            }
+            else
+            {
+                lstClients.Items.Clear();
+                lock (clients)
+                {
+                    foreach (var c in clients) lstClients.Items.Add(c.Client.RemoteEndPoint.ToString());
+                }
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             }
         }
     }

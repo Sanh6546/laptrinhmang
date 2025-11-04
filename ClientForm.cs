@@ -18,13 +18,23 @@ namespace ChatClient
 
         public Form1()
         {
+<<<<<<< HEAD
             this.Text = "Chat Client (Private + Multi-user)";
+=======
+            this.Text = "Chat Client";
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             this.Size = new Size(600, 450);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.WhiteSmoke;
 
+<<<<<<< HEAD
             int controlHeight = 30;
 
+=======
+            int controlHeight = 30; // chi?u cao mu?n th?ng nh?t
+
+            // Label & textbox cho tên
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             Label lblName = new Label()
             {
                 Text = "Name:",
@@ -34,6 +44,7 @@ namespace ChatClient
             };
             txtName = new TextBox()
             {
+<<<<<<< HEAD
                 Location = new Point(80, 20),
                 Width = 150,
                 Height = controlHeight,
@@ -44,12 +55,31 @@ namespace ChatClient
             {
                 Text = "Connect",
                 Location = new Point(250, 20),
+=======
+                Location = new Point(80, 20), // c?n cùng Y v?i Label
+                Width = 150,
+                Height = controlHeight,       // ??t chi?u cao b?ng nút
+                Font = new Font("Segoe UI", 10)
+            };
+
+            // Nút Connect
+            btnConnect = new Button()
+            {
+                Text = "Connect",
+                Location = new Point(250, 20), // c?n Y b?ng txtName
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
                 Size = new Size(100, controlHeight),
                 BackColor = Color.LightGreen,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
             };
             btnConnect.Click += BtnConnect_Click;
 
+<<<<<<< HEAD
+=======
+
+
+            // Textbox log chat
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             txtLog = new TextBox()
             {
                 Multiline = true,
@@ -62,6 +92,10 @@ namespace ChatClient
                 ForeColor = Color.LightGreen
             };
 
+<<<<<<< HEAD
+=======
+            // Textbox nh?p message
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             txtMessage = new TextBox()
             {
                 Location = new Point(20, 330),
@@ -69,6 +103,10 @@ namespace ChatClient
                 Font = new Font("Segoe UI", 10)
             };
 
+<<<<<<< HEAD
+=======
+            // Nút Send
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
             btnSend = new Button()
             {
                 Text = "Send",
@@ -88,9 +126,15 @@ namespace ChatClient
             {
                 client = new TcpClient("127.0.0.1", 5000);
                 stream = client.GetStream();
+<<<<<<< HEAD
 
                 AppendChat("Connected to server.");
                 SendMessage($"NAME:{txtName.Text}");
+=======
+                AppendChat("Connected to server.");
+
+                SendMessage($"[{txtName.Text}] joined the chat.");
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
 
                 receiveThread = new Thread(ReceiveMessages);
                 receiveThread.IsBackground = true;
@@ -106,7 +150,11 @@ namespace ChatClient
         {
             if (stream != null && !string.IsNullOrWhiteSpace(txtMessage.Text))
             {
+<<<<<<< HEAD
                 SendMessage(txtMessage.Text.Trim());
+=======
+                SendMessage($"[{txtName.Text}]: {txtMessage.Text}");
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
                 txtMessage.Clear();
             }
         }
