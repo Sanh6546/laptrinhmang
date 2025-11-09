@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ï»¿using System;
+=======
+using System;
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
 using System.Drawing;
 using System.Net.Sockets;
 using System.Text;
@@ -16,19 +20,41 @@ namespace ChatClient
         NetworkStream stream;
         Thread receiveThread;
 
+<<<<<<< HEAD
         bool isConnected = false;   // âœ… NGÄ‚N CONNECT NHIá»€U Láº¦N
 
         public Form1()
         {
             this.Text = "Chat Client (Private + Multi-user)";
+=======
+        public Form1()
+        {
+<<<<<<< HEAD
+            this.Text = "Chat Client (Private + Multi-user)";
+=======
+            this.Text = "Chat Client";
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
             this.Size = new Size(600, 450);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.WhiteSmoke;
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+            int controlHeight = 30;
+
+=======
+            int controlHeight = 30; // chi?u cao mu?n th?ng nh?t
+
+            // Label & textbox cho tên
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
             Label lblName = new Label()
             {
                 Text = "Name:",
                 Location = new Point(20, 20),
+<<<<<<< HEAD
                 AutoSize = true,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
             };
@@ -37,6 +63,17 @@ namespace ChatClient
             {
                 Location = new Point(80, 20),
                 Width = 150,
+=======
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                AutoSize = true
+            };
+            txtName = new TextBox()
+            {
+<<<<<<< HEAD
+                Location = new Point(80, 20),
+                Width = 150,
+                Height = controlHeight,
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
                 Font = new Font("Segoe UI", 10)
             };
 
@@ -44,24 +81,63 @@ namespace ChatClient
             {
                 Text = "Connect",
                 Location = new Point(250, 20),
+<<<<<<< HEAD
                 Size = new Size(100, 30),
+=======
+=======
+                Location = new Point(80, 20), // c?n cùng Y v?i Label
+                Width = 150,
+                Height = controlHeight,       // ??t chi?u cao b?ng nút
+                Font = new Font("Segoe UI", 10)
+            };
+
+            // Nút Connect
+            btnConnect = new Button()
+            {
+                Text = "Connect",
+                Location = new Point(250, 20), // c?n Y b?ng txtName
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
+                Size = new Size(100, controlHeight),
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
                 BackColor = Color.LightGreen,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
             };
             btnConnect.Click += BtnConnect_Click;
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+
+            // Textbox log chat
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
             txtLog = new TextBox()
             {
                 Multiline = true,
                 ScrollBars = ScrollBars.Vertical,
                 Location = new Point(20, 60),
                 Size = new Size(540, 250),
+<<<<<<< HEAD
                 ReadOnly = true,
                 BackColor = Color.Black,
                 ForeColor = Color.LightGreen,
                 Font = new Font("Consolas", 10)
             };
 
+=======
+                Font = new Font("Consolas", 10),
+                ReadOnly = true,
+                BackColor = Color.Black,
+                ForeColor = Color.LightGreen
+            };
+
+<<<<<<< HEAD
+=======
+            // Textbox nh?p message
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
             txtMessage = new TextBox()
             {
                 Location = new Point(20, 330),
@@ -69,6 +145,13 @@ namespace ChatClient
                 Font = new Font("Segoe UI", 10)
             };
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+            // Nút Send
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
             btnSend = new Button()
             {
                 Text = "Send",
@@ -84,6 +167,7 @@ namespace ChatClient
 
         private void BtnConnect_Click(object sender, EventArgs e)
         {
+<<<<<<< HEAD
             if (isConnected)
             {
                 MessageBox.Show("You are already connected.");
@@ -96,16 +180,31 @@ namespace ChatClient
                 return;
             }
 
+=======
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
             try
             {
                 client = new TcpClient("127.0.0.1", 5000);
                 stream = client.GetStream();
+<<<<<<< HEAD
 
                 SendMessage($"NAME:{txtName.Text}");
+=======
+<<<<<<< HEAD
+
+                AppendChat("Connected to server.");
+                SendMessage($"NAME:{txtName.Text}");
+=======
+                AppendChat("Connected to server.");
+
+                SendMessage($"[{txtName.Text}] joined the chat.");
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
 
                 receiveThread = new Thread(ReceiveMessages);
                 receiveThread.IsBackground = true;
                 receiveThread.Start();
+<<<<<<< HEAD
 
                 AppendChat("Connected to server.");
                 isConnected = true;
@@ -115,17 +214,33 @@ namespace ChatClient
             catch
             {
                 MessageBox.Show("Unable to connect to server.");
+=======
+            }
+            catch
+            {
+                MessageBox.Show("Unable to connect to server.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
             }
         }
 
         private void BtnSend_Click(object sender, EventArgs e)
         {
+<<<<<<< HEAD
             if (stream == null) return;
 
             string text = txtMessage.Text.Trim();
             if (!string.IsNullOrEmpty(text))
             {
                 SendMessage(text);
+=======
+            if (stream != null && !string.IsNullOrWhiteSpace(txtMessage.Text))
+            {
+<<<<<<< HEAD
+                SendMessage(txtMessage.Text.Trim());
+=======
+                SendMessage($"[{txtName.Text}]: {txtMessage.Text}");
+>>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
                 txtMessage.Clear();
             }
         }
@@ -134,7 +249,10 @@ namespace ChatClient
         {
             byte[] buffer = new byte[1024];
             int bytes;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
             while (true)
             {
                 try
@@ -142,8 +260,13 @@ namespace ChatClient
                     bytes = stream.Read(buffer, 0, buffer.Length);
                     if (bytes == 0) break;
 
+<<<<<<< HEAD
                     string msg = Encoding.UTF8.GetString(buffer, 0, bytes);
                     AppendChat(msg);
+=======
+                    string message = Encoding.UTF8.GetString(buffer, 0, bytes);
+                    AppendChat(message);
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
                 }
                 catch
                 {
@@ -170,12 +293,28 @@ namespace ChatClient
         {
             if (txtLog.InvokeRequired)
             {
+<<<<<<< HEAD
                 txtLog.Invoke(new Action(() => AppendChat(msg)));
                 return;
             }
 
             txtLog.AppendText(msg + Environment.NewLine);
             txtLog.ScrollToCaret();
+=======
+                txtLog.Invoke(new Action(() =>
+                {
+                    txtLog.AppendText(msg + Environment.NewLine);
+                    txtLog.SelectionStart = txtLog.Text.Length;
+                    txtLog.ScrollToCaret();
+                }));
+            }
+            else
+            {
+                txtLog.AppendText(msg + Environment.NewLine);
+                txtLog.SelectionStart = txtLog.Text.Length;
+                txtLog.ScrollToCaret();
+            }
+>>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
         }
     }
 }
