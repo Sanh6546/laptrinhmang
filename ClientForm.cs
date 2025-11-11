@@ -1,173 +1,141 @@
-<<<<<<< HEAD
 ï»¿using System;
-=======
-using System;
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
 using System.Drawing;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.IO;
 
 namespace ChatClient
 {
     public class Form1 : Form
     {
         TextBox txtLog, txtMessage, txtName;
-        Button btnSend, btnConnect;
+        Button btnSend, btnConnect, btnAttachFile;
+        Panel headerPanel, footerPanel;
 
         TcpClient client;
         NetworkStream stream;
         Thread receiveThread;
-
-<<<<<<< HEAD
-        bool isConnected = false;   // âœ… NGÄ‚N CONNECT NHIá»€U Láº¦N
+        bool isConnected = false;
 
         public Form1()
         {
             this.Text = "Chat Client (Private + Multi-user)";
-=======
-        public Form1()
-        {
-<<<<<<< HEAD
-            this.Text = "Chat Client (Private + Multi-user)";
-=======
-            this.Text = "Chat Client";
->>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
-            this.Size = new Size(600, 450);
+            this.Size = new Size(600, 500);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.WhiteSmoke;
+            this.Font = new Font("Segoe UI", 10);
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-            int controlHeight = 30;
-
-=======
-            int controlHeight = 30; // chi?u cao mu?n th?ng nh?t
-
-            // Label & textbox cho tên
->>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
-            Label lblName = new Label()
+            // Header Panel
+            headerPanel = new Panel()
             {
-                Text = "Name:",
-                Location = new Point(20, 20),
-<<<<<<< HEAD
+                Dock = DockStyle.Top,
+                Height = 70,
+                BackColor = Color.LightSkyBlue,
+                Padding = new Padding(20, 10, 20, 10)
+            };
+
+            Label lblTitle = new Label()
+            {
+                Text = "ðŸ’¬ Chat Client",
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                Location = new Point(10, 20)
             };
 
             txtName = new TextBox()
             {
-                Location = new Point(80, 20),
-                Width = 150,
-=======
+                PlaceholderText = "Enter your name...",
+                Width = 140,
+                Height = 30,
+                BorderStyle = BorderStyle.FixedSingle,
+                Font = new Font("Segoe UI", 10),
+                Location = new Point(250, 20)
+            };
+
+            btnConnect = new Button()
+            {
+                Text = "Connect",
+                Size = new Size(90, 30),
+                BackColor = Color.White,
+                ForeColor = Color.LightSkyBlue,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                AutoSize = true
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(400, 20)
             };
-            txtName = new TextBox()
-            {
-<<<<<<< HEAD
-                Location = new Point(80, 20),
-                Width = 150,
-                Height = controlHeight,
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
-                Font = new Font("Segoe UI", 10)
-            };
-
-            btnConnect = new Button()
-            {
-                Text = "Connect",
-                Location = new Point(250, 20),
-<<<<<<< HEAD
-                Size = new Size(100, 30),
-=======
-=======
-                Location = new Point(80, 20), // c?n cùng Y v?i Label
-                Width = 150,
-                Height = controlHeight,       // ??t chi?u cao b?ng nút
-                Font = new Font("Segoe UI", 10)
-            };
-
-            // Nút Connect
-            btnConnect = new Button()
-            {
-                Text = "Connect",
-                Location = new Point(250, 20), // c?n Y b?ng txtName
->>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
-                Size = new Size(100, controlHeight),
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
-                BackColor = Color.LightGreen,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold)
-            };
+            btnConnect.FlatAppearance.BorderSize = 0;
             btnConnect.Click += BtnConnect_Click;
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
+            headerPanel.Controls.AddRange(new Control[] { lblTitle, txtName, btnConnect });
 
-
-            // Textbox log chat
->>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
+            // Chat Log
             txtLog = new TextBox()
             {
                 Multiline = true,
                 ScrollBars = ScrollBars.Vertical,
-                Location = new Point(20, 60),
-                Size = new Size(540, 250),
-<<<<<<< HEAD
                 ReadOnly = true,
+                Dock = DockStyle.Fill,
+                Font = new Font("Consolas", 10),
                 BackColor = Color.Black,
                 ForeColor = Color.LightGreen,
-                Font = new Font("Consolas", 10)
+                BorderStyle = BorderStyle.FixedSingle
             };
 
-=======
-                Font = new Font("Consolas", 10),
-                ReadOnly = true,
-                BackColor = Color.Black,
-                ForeColor = Color.LightGreen
+            // Footer Panel
+            footerPanel = new Panel()
+            {
+                Dock = DockStyle.Bottom,
+                Height = 70,
+                BackColor = Color.WhiteSmoke,
+                Padding = new Padding(10)
             };
 
-<<<<<<< HEAD
-=======
-            // Textbox nh?p message
->>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
             txtMessage = new TextBox()
             {
-                Location = new Point(20, 330),
-                Size = new Size(420, 30),
-                Font = new Font("Segoe UI", 10)
+                PlaceholderText = "Type your message...",
+                Width = 300,
+                Height = 30,
+                BorderStyle = BorderStyle.FixedSingle,
+                Font = new Font("Segoe UI", 10),
+                Location = new Point(10, 20)
             };
+            txtMessage.KeyPress += TxtMessage_KeyPress;
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-            // Nút Send
->>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
+            btnAttachFile = new Button()
+            {
+                Text = "ðŸ“Ž",
+                Size = new Size(40, 30),
+                BackColor = Color.LightGreen,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 12),
+                Location = new Point(320, 20)
+            };
+            btnAttachFile.FlatAppearance.BorderSize = 0;
+            btnAttachFile.Click += BtnAttachFile_Click;
+
             btnSend = new Button()
             {
                 Text = "Send",
-                Location = new Point(460, 330),
-                Size = new Size(100, 30),
+                Size = new Size(80, 30),
                 BackColor = Color.LightSkyBlue,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Location = new Point(370, 20)
             };
+            btnSend.FlatAppearance.BorderSize = 0;
             btnSend.Click += BtnSend_Click;
 
-            this.Controls.AddRange(new Control[] { lblName, txtName, btnConnect, txtLog, txtMessage, btnSend });
+            footerPanel.Controls.AddRange(new Control[] { txtMessage, btnAttachFile, btnSend });
+
+            this.Controls.AddRange(new Control[] { headerPanel, txtLog, footerPanel });
         }
 
         private void BtnConnect_Click(object sender, EventArgs e)
         {
-<<<<<<< HEAD
             if (isConnected)
             {
                 MessageBox.Show("You are already connected.");
@@ -180,99 +148,216 @@ namespace ChatClient
                 return;
             }
 
-=======
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
             try
             {
                 client = new TcpClient("127.0.0.1", 5000);
                 stream = client.GetStream();
-<<<<<<< HEAD
 
                 SendMessage($"NAME:{txtName.Text}");
-=======
-<<<<<<< HEAD
-
-                AppendChat("Connected to server.");
-                SendMessage($"NAME:{txtName.Text}");
-=======
-                AppendChat("Connected to server.");
-
-                SendMessage($"[{txtName.Text}] joined the chat.");
->>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
 
                 receiveThread = new Thread(ReceiveMessages);
                 receiveThread.IsBackground = true;
                 receiveThread.Start();
-<<<<<<< HEAD
 
                 AppendChat("Connected to server.");
                 isConnected = true;
                 btnConnect.Enabled = false;
                 txtName.ReadOnly = true;
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Unable to connect to server.");
-=======
-            }
-            catch
-            {
-                MessageBox.Show("Unable to connect to server.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
+                MessageBox.Show($"Unable to connect to server: {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void BtnSend_Click(object sender, EventArgs e)
         {
-<<<<<<< HEAD
-            if (stream == null) return;
+            SendTextMessage();
+        }
+
+        private void TxtMessage_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                SendTextMessage();
+                e.Handled = true;
+            }
+        }
+
+        private void SendTextMessage()
+        {
+            if (stream == null || !isConnected) return;
 
             string text = txtMessage.Text.Trim();
             if (!string.IsNullOrEmpty(text))
             {
-                SendMessage(text);
-=======
-            if (stream != null && !string.IsNullOrWhiteSpace(txtMessage.Text))
-            {
-<<<<<<< HEAD
-                SendMessage(txtMessage.Text.Trim());
-=======
-                SendMessage($"[{txtName.Text}]: {txtMessage.Text}");
->>>>>>> b7558a56e43304b5f75382792fd3c6dd63f37c4d
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
+                SendMessage($"[{txtName.Text}]: {text}");
                 txtMessage.Clear();
             }
         }
 
+        private void BtnAttachFile_Click(object sender, EventArgs e)
+        {
+            if (!isConnected)
+            {
+                MessageBox.Show("Please connect to server first!", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Title = "Select file to send";
+                openFileDialog.Filter = "All files (*.*)|*.*";
+                openFileDialog.Multiselect = false;
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    SendFile(openFileDialog.FileName);
+                }
+            }
+        }
+
+        private void SendFile(string filePath)
+        {
+            try
+            {
+                string fileName = Path.GetFileName(filePath);
+                byte[] fileData = File.ReadAllBytes(filePath);
+
+                // Create file header: FILE|SenderName|FileName|FileSize
+                string fileHeader = $"FILE|{txtName.Text}|{fileName}|{fileData.Length}";
+                byte[] headerBytes = Encoding.UTF8.GetBytes(fileHeader);
+
+                // Send header
+                stream.Write(headerBytes, 0, headerBytes.Length);
+
+                // Small delay to ensure header is processed
+                Thread.Sleep(100);
+
+                // Send file data
+                stream.Write(fileData, 0, fileData.Length);
+
+                AppendChat($"[File Sent] You sent: {fileName} ({FormatFileSize(fileData.Length)})");
+            }
+            catch (Exception ex)
+            {
+                AppendChat($"[Error] Failed to send file: {ex.Message}");
+            }
+        }
+
+        private string FormatFileSize(long bytes)
+        {
+            string[] sizes = { "B", "KB", "MB", "GB" };
+            int order = 0;
+            double len = bytes;
+            while (len >= 1024 && order < sizes.Length - 1)
+            {
+                order++;
+                len = len / 1024;
+            }
+            return $"{len:0.##} {sizes[order]}";
+        }
+
         void ReceiveMessages()
         {
-            byte[] buffer = new byte[1024];
-            int bytes;
-<<<<<<< HEAD
+            byte[] buffer = new byte[4096]; // Larger buffer for file transfer
+            int bytesRead;
 
-=======
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
-            while (true)
+            while (isConnected && client != null && client.Connected)
             {
                 try
                 {
-                    bytes = stream.Read(buffer, 0, buffer.Length);
-                    if (bytes == 0) break;
+                    bytesRead = stream.Read(buffer, 0, buffer.Length);
+                    if (bytesRead == 0)
+                    {
+                        AppendChat("Disconnected from server.");
+                        break;
+                    }
 
-<<<<<<< HEAD
-                    string msg = Encoding.UTF8.GetString(buffer, 0, bytes);
-                    AppendChat(msg);
-=======
-                    string message = Encoding.UTF8.GetString(buffer, 0, bytes);
-                    AppendChat(message);
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
+                    string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+                    // Check if this is a file transfer
+                    if (receivedData.StartsWith("FILE|"))
+                    {
+                        ProcessFileTransfer(receivedData, buffer, bytesRead);
+                    }
+                    else
+                    {
+                        // Regular text message
+                        AppendChat(receivedData);
+                    }
                 }
-                catch
+                catch (IOException)
                 {
                     AppendChat("Disconnected from server.");
                     break;
                 }
+                catch (Exception ex)
+                {
+                    AppendChat($"[Error] Receive error: {ex.Message}");
+                    break;
+                }
+            }
+        }
+
+        private void ProcessFileTransfer(string fileHeader, byte[] buffer, int initialBytesRead)
+        {
+            try
+            {
+                string[] headerParts = fileHeader.Split('|');
+                if (headerParts.Length >= 4)
+                {
+                    string senderName = headerParts[1];
+                    string fileName = headerParts[2];
+                    int fileSize = int.Parse(headerParts[3]);
+
+                    // Calculate how much file data we've already received in the initial read
+                    int headerLength = Encoding.UTF8.GetByteCount(fileHeader);
+                    int fileDataReceived = initialBytesRead - headerLength;
+
+                    byte[] fileData = new byte[fileSize];
+
+                    // Copy any file data that came with the header
+                    if (fileDataReceived > 0)
+                    {
+                        Array.Copy(buffer, headerLength, fileData, 0, fileDataReceived);
+                    }
+
+                    // Read remaining file data
+                    int totalReceived = fileDataReceived;
+                    while (totalReceived < fileSize)
+                    {
+                        int bytesToRead = Math.Min(buffer.Length, fileSize - totalReceived);
+                        int bytesRead = stream.Read(fileData, totalReceived, bytesToRead);
+                        if (bytesRead == 0) break;
+                        totalReceived += bytesRead;
+                    }
+
+                    // Save the file
+                    string downloadsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    string savePath = Path.Combine(downloadsPath, fileName);
+
+                    // Handle duplicate file names
+                    int counter = 1;
+                    string originalPath = savePath;
+                    while (File.Exists(savePath))
+                    {
+                        string fileNameWithoutExt = Path.GetFileNameWithoutExtension(originalPath);
+                        string extension = Path.GetExtension(originalPath);
+                        savePath = Path.Combine(downloadsPath, $"{fileNameWithoutExt} ({counter}){extension}");
+                        counter++;
+                    }
+
+                    File.WriteAllBytes(savePath, fileData);
+                    AppendChat($"[File Received] {senderName} sent: {Path.GetFileName(savePath)} ({FormatFileSize(fileSize)})");
+                    AppendChat($"[File Saved] Location: {savePath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                AppendChat($"[Error] File receive failed: {ex.Message}");
             }
         }
 
@@ -280,12 +365,15 @@ namespace ChatClient
         {
             try
             {
-                byte[] data = Encoding.UTF8.GetBytes(msg);
-                stream.Write(data, 0, data.Length);
+                if (stream != null && stream.CanWrite)
+                {
+                    byte[] data = Encoding.UTF8.GetBytes(msg);
+                    stream.Write(data, 0, data.Length);
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                AppendChat("Failed to send message.");
+                AppendChat($"Failed to send message: {ex.Message}");
             }
         }
 
@@ -293,28 +381,22 @@ namespace ChatClient
         {
             if (txtLog.InvokeRequired)
             {
-<<<<<<< HEAD
                 txtLog.Invoke(new Action(() => AppendChat(msg)));
                 return;
             }
 
             txtLog.AppendText(msg + Environment.NewLine);
+            txtLog.SelectionStart = txtLog.Text.Length;
             txtLog.ScrollToCaret();
-=======
-                txtLog.Invoke(new Action(() =>
-                {
-                    txtLog.AppendText(msg + Environment.NewLine);
-                    txtLog.SelectionStart = txtLog.Text.Length;
-                    txtLog.ScrollToCaret();
-                }));
-            }
-            else
-            {
-                txtLog.AppendText(msg + Environment.NewLine);
-                txtLog.SelectionStart = txtLog.Text.Length;
-                txtLog.ScrollToCaret();
-            }
->>>>>>> 0e1df023994a6c860a96913d4bfa0486d49df2fa
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            isConnected = false;
+            stream?.Close();
+            client?.Close();
+            receiveThread?.Abort();
+            base.OnFormClosing(e);
         }
     }
 }
