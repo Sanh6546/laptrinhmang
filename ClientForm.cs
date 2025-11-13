@@ -4,16 +4,21 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using System.IO;
 
 namespace ChatClient
 {
     public class Form1 : Form
     {
+        // =============================
+        // ✅ KHAI BÁO CONTROL GIAO DIỆN
+        // =============================
         TextBox txtLog, txtMessage, txtName;
-        Button btnSend, btnConnect, btnAttachFile;
+        Button btnSend, btnConnect, btnAttach;
         Panel headerPanel, footerPanel;
 
+        // =============================
+        // ✅ BIẾN DÙNG CHO KẾT NỐI
+        // =============================
         TcpClient client;
         NetworkStream stream;
         Thread receiveThread;
@@ -21,24 +26,29 @@ namespace ChatClient
 
         public Form1()
         {
-            this.Text = "Chat Client (Private + Multi-user)";
+            // =============================
+            // ✅ CẤU HÌNH FORM
+            // =============================
+            this.Text = "Zalo Chat Client";
             this.Size = new Size(600, 500);
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = Color.WhiteSmoke;
+            this.BackColor = ColorTranslator.FromHtml("#F5F7FA");
             this.Font = new Font("Segoe UI", 10);
 
-            // Header Panel
+            // =============================
+            // ✅ HEADER (tên, nút connect)
+            // =============================
             headerPanel = new Panel()
             {
                 Dock = DockStyle.Top,
                 Height = 70,
-                BackColor = Color.LightSkyBlue,
+                BackColor = ColorTranslator.FromHtml("#0091FF"),
                 Padding = new Padding(20, 10, 20, 10)
             };
 
             Label lblTitle = new Label()
             {
-                Text = "💬 Chat Client",
+                Text = "💬 Zalo Chat Client",
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 AutoSize = true,
@@ -47,337 +57,292 @@ namespace ChatClient
 
             txtName = new TextBox()
             {
-                PlaceholderText = "Enter your name...",
+                PlaceholderText = "Nhập tên của bạn...",
                 Width = 140,
-                Height = 30,
                 BorderStyle = BorderStyle.FixedSingle,
                 Font = new Font("Segoe UI", 10),
-                Location = new Point(250, 20)
+                Location = new Point(300, 20)
             };
 
             btnConnect = new Button()
             {
-                Text = "Connect",
+                Text = "Kết nối",
                 Size = new Size(90, 30),
                 BackColor = Color.White,
-                ForeColor = Color.LightSkyBlue,
+                ForeColor = ColorTranslator.FromHtml("#0091FF"),
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 FlatStyle = FlatStyle.Flat,
-                Location = new Point(400, 20)
+                Location = new Point(450, 20)
             };
             btnConnect.FlatAppearance.BorderSize = 0;
             btnConnect.Click += BtnConnect_Click;
 
             headerPanel.Controls.AddRange(new Control[] { lblTitle, txtName, btnConnect });
 
-            // Chat Log
+            // =============================
+            // ✅ LOG CHAT (hiển thị tin nhắn)
+            // =============================
             txtLog = new TextBox()
             {
                 Multiline = true,
-                ScrollBars = ScrollBars.Vertical,
+ScrollBars = ScrollBars.Vertical,
                 ReadOnly = true,
                 Dock = DockStyle.Fill,
-                Font = new Font("Consolas", 10),
-                BackColor = Color.Black,
-                ForeColor = Color.LightGreen,
+                Font = new Font("Segoe UI", 10),
+                BackColor = Color.White,
+                ForeColor = Color.Black,
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            // Footer Panel
+            // =============================
+            // ✅ FOOTER (nhập tin + gửi + gửi file)
+            // =============================
             footerPanel = new Panel()
             {
                 Dock = DockStyle.Bottom,
                 Height = 70,
-                BackColor = Color.WhiteSmoke,
-                Padding = new Padding(10)
+                BackColor = Color.WhiteSmoke
             };
 
             txtMessage = new TextBox()
             {
-                PlaceholderText = "Type your message...",
-                Width = 300,
+                PlaceholderText = "Nhập tin nhắn...",
+                Width = 310,
                 Height = 30,
                 BorderStyle = BorderStyle.FixedSingle,
                 Font = new Font("Segoe UI", 10),
-                Location = new Point(10, 20)
+                Location = new Point(20, 20)
             };
-            txtMessage.KeyPress += TxtMessage_KeyPress;
-
-            btnAttachFile = new Button()
-            {
-                Text = "📎",
-                Size = new Size(40, 30),
-                BackColor = Color.LightGreen,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 12),
-                Location = new Point(320, 20)
-            };
-            btnAttachFile.FlatAppearance.BorderSize = 0;
-            btnAttachFile.Click += BtnAttachFile_Click;
 
             btnSend = new Button()
             {
-                Text = "Send",
-                Size = new Size(80, 30),
-                BackColor = Color.LightSkyBlue,
+                Text = "Gửi",
+                Size = new Size(70, 30),
+                BackColor = ColorTranslator.FromHtml("#0091FF"),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                Location = new Point(370, 20)
+                Location = new Point(340, 20)
             };
             btnSend.FlatAppearance.BorderSize = 0;
             btnSend.Click += BtnSend_Click;
 
-            footerPanel.Controls.AddRange(new Control[] { txtMessage, btnAttachFile, btnSend });
+            btnAttach = new Button()
+            {
+                Text = "📎 File",
+                Size = new Size(70, 30),
+                BackColor = ColorTranslator.FromHtml("#28a745"),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Location = new Point(420, 20)
+            };
+            btnAttach.FlatAppearance.BorderSize = 0;
+            btnAttach.Click += BtnAttach_Click;
 
-            this.Controls.AddRange(new Control[] { headerPanel, txtLog, footerPanel });
+            footerPanel.Controls.AddRange(new Control[] { txtMessage, btnSend, btnAttach });
+
+            // =============================
+            // ✅ ADD CONTROL VÀO FORM
+            // =============================
+            this.Controls.AddRange(new Control[] { txtLog, headerPanel, footerPanel });
         }
 
+        // =====================================================
+        // ✅ SỰ KIỆN NHẤN NÚT CONNECT → GỬI TÊN LÊN SERVER
+        // =====================================================
         private void BtnConnect_Click(object sender, EventArgs e)
         {
-            if (isConnected)
-            {
-                MessageBox.Show("You are already connected.");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(txtName.Text))
-            {
-                MessageBox.Show("Please enter your name.");
-                return;
-            }
+            if (isConnected) { MessageBox.Show("Bạn đã kết nối rồi!"); return; }
+            if (string.IsNullOrWhiteSpace(txtName.Text)) { MessageBox.Show("Vui lòng nhập tên."); return; }
 
             try
             {
+                // 1) Tạo kết nối TCP đến server
                 client = new TcpClient("127.0.0.1", 5000);
                 stream = client.GetStream();
-
+// 2) Gửi tên lên server
                 SendMessage($"NAME:{txtName.Text}");
 
-                receiveThread = new Thread(ReceiveMessages);
-                receiveThread.IsBackground = true;
+                // 3) Khởi chạy luồng nhận tin nhắn
+                receiveThread = new Thread(ReceiveMessages) { IsBackground = true };
                 receiveThread.Start();
 
-                AppendChat("Connected to server.");
+                AppendChat("✅ Đã kết nối đến server.");
                 isConnected = true;
+
                 btnConnect.Enabled = false;
                 txtName.ReadOnly = true;
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show($"Unable to connect to server: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Không thể kết nối server.");
             }
         }
 
+        // =====================================================
+        // ✅ NHẤN GỬI → GỬI TIN VĂN BẢN
+        // =====================================================
         private void BtnSend_Click(object sender, EventArgs e)
         {
-            SendTextMessage();
-        }
-
-        private void TxtMessage_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (char)Keys.Enter)
-            {
-                SendTextMessage();
-                e.Handled = true;
-            }
-        }
-
-        private void SendTextMessage()
-        {
-            if (stream == null || !isConnected) return;
+            if (stream == null) return;
 
             string text = txtMessage.Text.Trim();
             if (!string.IsNullOrEmpty(text))
             {
-                SendMessage($"[{txtName.Text}]: {text}");
+                SendMessage(text);
                 txtMessage.Clear();
             }
         }
 
-        private void BtnAttachFile_Click(object sender, EventArgs e)
+        // =====================================================
+        // ✅ NHẤN "FILE" → GỬI FILE
+        // =====================================================
+        private void BtnAttach_Click(object sender, EventArgs e)
         {
             if (!isConnected)
             {
-                MessageBox.Show("Please connect to server first!", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Bạn chưa kết nối server!");
                 return;
             }
 
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                openFileDialog.Title = "Select file to send";
-                openFileDialog.Filter = "All files (*.*)|*.*";
-                openFileDialog.Multiselect = false;
+            using OpenFileDialog ofd = new OpenFileDialog();
 
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = ofd.FileName;
+                string fileName = System.IO.Path.GetFileName(filePath);
+                byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+                // HEADER gửi trước để server biết dung lượng file
+                string header = $"FILE|{txtName.Text}|ALL|{fileName}|{fileBytes.Length}";
+                byte[] headerBytes = Encoding.UTF8.GetBytes(header);
+
+                try
                 {
-                    SendFile(openFileDialog.FileName);
+                    // Gửi HEADER
+                    stream.Write(headerBytes, 0, headerBytes.Length);
+
+                    Thread.Sleep(50); // tránh dính gói
+
+                    // Gửi BYTE FILE
+                    stream.Write(fileBytes, 0, fileBytes.Length);
+
+                    AppendChat($"📎 Bạn đã gửi file '{fileName}'");
+                }
+                catch
+                {
+                    AppendChat("❌ Gửi file thất bại.");
                 }
             }
         }
 
-        private void SendFile(string filePath)
+        // =====================================================
+        // ✅ GỬI CHUỖI DATA QUA SOCKET
+        // =====================================================
+        private void SendMessage(string msg)
         {
             try
             {
-                string fileName = Path.GetFileName(filePath);
-                byte[] fileData = File.ReadAllBytes(filePath);
-
-                // Create file header: FILE|SenderName|FileName|FileSize
-                string fileHeader = $"FILE|{txtName.Text}|{fileName}|{fileData.Length}";
-                byte[] headerBytes = Encoding.UTF8.GetBytes(fileHeader);
-
-                // Send header
-                stream.Write(headerBytes, 0, headerBytes.Length);
-
-                // Small delay to ensure header is processed
-                Thread.Sleep(100);
-
-                // Send file data
-                stream.Write(fileData, 0, fileData.Length);
-
-                AppendChat($"[File Sent] You sent: {fileName} ({FormatFileSize(fileData.Length)})");
+                byte[] data = Encoding.UTF8.GetBytes(msg);
+                stream.Write(data, 0, data.Length);
             }
-            catch (Exception ex)
+catch
             {
-                AppendChat($"[Error] Failed to send file: {ex.Message}");
+                AppendChat("❌ Gửi tin nhắn thất bại.");
             }
         }
 
-        private string FormatFileSize(long bytes)
+        // =====================================================
+        // ✅ LUỒNG NHẬN TIN TỪ SERVER (GỬI FILE + CHAT)
+        // =====================================================
+        private void ReceiveMessages()
         {
-            string[] sizes = { "B", "KB", "MB", "GB" };
-            int order = 0;
-            double len = bytes;
-            while (len >= 1024 && order < sizes.Length - 1)
-            {
-                order++;
-                len = len / 1024;
-            }
-            return $"{len:0.##} {sizes[order]}";
-        }
+            byte[] buffer = new byte[1024];
 
-        void ReceiveMessages()
-        {
-            byte[] buffer = new byte[4096]; // Larger buffer for file transfer
-            int bytesRead;
-
-            while (isConnected && client != null && client.Connected)
+            try
             {
-                try
+                while (true)
                 {
-                    bytesRead = stream.Read(buffer, 0, buffer.Length);
-                    if (bytesRead == 0)
+                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                    if (bytesRead <= 0) continue;
+
+                    string msg = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+                    // ==========================================
+                    // ✅ 1) NHẬN FILE
+                    // ==========================================
+                    if (msg.StartsWith("FILE|"))
                     {
-                        AppendChat("Disconnected from server.");
+                        string[] parts = msg.Split('|');
+
+                        if (parts.Length == 5)
+                        {
+                            string senderName = parts[1];
+                            string fileName = parts[3];
+                            int fileSize = int.Parse(parts[4]);
+
+                            // Tạo buffer để đọc toàn bộ file
+                            byte[] fileBuffer = new byte[fileSize];
+                            int totalRead = 0;
+
+                            // Đọc đến khi đủ fileSize
+                            while (totalRead < fileSize)
+                            {
+                                int read = stream.Read(fileBuffer, totalRead, fileSize - totalRead);
+                                if (read == 0) break;
+                                totalRead += read;
+                            }
+
+                            // Lưu file vào Documents
+                            string savePath = System.IO.Path.Combine(
+                                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                                fileName
+                            );
+
+                            System.IO.File.WriteAllBytes(savePath, fileBuffer);
+
+                            AppendChat($"📥 Nhận file '{fileName}' từ {senderName}. Lưu tại: {savePath}");
+                        }
+
+                        continue;
+                    }
+
+                    // ==========================================
+                    // ✅ 2) KIỂM TRA TRÙNG TÊN
+                    // ==========================================
+                    if (msg.Contains("Name already in use"))
+                    {
+                        MessageBox.Show("Tên này đã được sử dụng. Vui lòng nhập tên khác.",
+                                        "Trùng tên", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                        // Ngắt kết nối
+                        stream.Close();
+                        client.Close();
+isConnected = false;
+                        btnConnect.Enabled = true;
+                        txtName.ReadOnly = false;
+
+                        AppendChat("❌ Disconnected from server. Please try a new name.");
                         break;
                     }
 
-                    string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-
-                    // Check if this is a file transfer
-                    if (receivedData.StartsWith("FILE|"))
-                    {
-                        ProcessFileTransfer(receivedData, buffer, bytesRead);
-                    }
-                    else
-                    {
-                        // Regular text message
-                        AppendChat(receivedData);
-                    }
+                    // ==========================================
+                    // ✅ 3) TIN NHẮN BÌNH THƯỜNG
+                    // ==========================================
+                    AppendChat(msg);
                 }
-                catch (IOException)
-                {
-                    AppendChat("Disconnected from server.");
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    AppendChat($"[Error] Receive error: {ex.Message}");
-                    break;
-                }
+            }
+            catch
+            {
+                AppendChat("❌ Mất kết nối server.");
             }
         }
 
-        private void ProcessFileTransfer(string fileHeader, byte[] buffer, int initialBytesRead)
-        {
-            try
-            {
-                string[] headerParts = fileHeader.Split('|');
-                if (headerParts.Length >= 4)
-                {
-                    string senderName = headerParts[1];
-                    string fileName = headerParts[2];
-                    int fileSize = int.Parse(headerParts[3]);
-
-                    // Calculate how much file data we've already received in the initial read
-                    int headerLength = Encoding.UTF8.GetByteCount(fileHeader);
-                    int fileDataReceived = initialBytesRead - headerLength;
-
-                    byte[] fileData = new byte[fileSize];
-
-                    // Copy any file data that came with the header
-                    if (fileDataReceived > 0)
-                    {
-                        Array.Copy(buffer, headerLength, fileData, 0, fileDataReceived);
-                    }
-
-                    // Read remaining file data
-                    int totalReceived = fileDataReceived;
-                    while (totalReceived < fileSize)
-                    {
-                        int bytesToRead = Math.Min(buffer.Length, fileSize - totalReceived);
-                        int bytesRead = stream.Read(fileData, totalReceived, bytesToRead);
-                        if (bytesRead == 0) break;
-                        totalReceived += bytesRead;
-                    }
-
-                    // Save the file
-                    string downloadsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                    string savePath = Path.Combine(downloadsPath, fileName);
-
-                    // Handle duplicate file names
-                    int counter = 1;
-                    string originalPath = savePath;
-                    while (File.Exists(savePath))
-                    {
-                        string fileNameWithoutExt = Path.GetFileNameWithoutExtension(originalPath);
-                        string extension = Path.GetExtension(originalPath);
-                        savePath = Path.Combine(downloadsPath, $"{fileNameWithoutExt} ({counter}){extension}");
-                        counter++;
-                    }
-
-                    File.WriteAllBytes(savePath, fileData);
-                    AppendChat($"[File Received] {senderName} sent: {Path.GetFileName(savePath)} ({FormatFileSize(fileSize)})");
-                    AppendChat($"[File Saved] Location: {savePath}");
-                }
-            }
-            catch (Exception ex)
-            {
-                AppendChat($"[Error] File receive failed: {ex.Message}");
-            }
-        }
-
-        void SendMessage(string msg)
-        {
-            try
-            {
-                if (stream != null && stream.CanWrite)
-                {
-                    byte[] data = Encoding.UTF8.GetBytes(msg);
-                    stream.Write(data, 0, data.Length);
-                }
-            }
-            catch (Exception ex)
-            {
-                AppendChat($"Failed to send message: {ex.Message}");
-            }
-        }
-
-        void AppendChat(string msg)
+        // =====================================================
+        // ✅ THÊM TIN NHẮN VÀO HỘP CHAT
+        // =====================================================
+        private void AppendChat(string msg)
         {
             if (txtLog.InvokeRequired)
             {
@@ -386,17 +351,7 @@ namespace ChatClient
             }
 
             txtLog.AppendText(msg + Environment.NewLine);
-            txtLog.SelectionStart = txtLog.Text.Length;
             txtLog.ScrollToCaret();
-        }
-
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            isConnected = false;
-            stream?.Close();
-            client?.Close();
-            receiveThread?.Abort();
-            base.OnFormClosing(e);
         }
     }
 }

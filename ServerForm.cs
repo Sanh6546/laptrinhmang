@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -14,26 +12,28 @@ namespace ChatServer
 {
     public class Form1 : Form
     {
+        // ====== Các control trên giao diện ======
         TextBox txtLog;
         Button btnStart, btnStop, btnViewHistory;
         FlowLayoutPanel pnlClients;
 
-        TcpListener listener;
-        List<TcpClient> clients = new List<TcpClient>();
-        Dictionary<TcpClient, string> clientNames = new Dictionary<TcpClient, string>();
+        // ====== Các biến mạng ======
+        TcpListener listener;                     // Lắng nghe client mới
+        List<TcpClient> clients = new List<TcpClient>();     // Danh sách client đang kết nối
+        Dictionary<TcpClient, string> clientNames = new Dictionary<TcpClient, string>(); // Ánh xạ Client → Tên người dùng
 
-        bool isRunning = false;
+        bool isRunning = false;                  // Trạng thái server
 
         public Form1()
         {
-            // ===== FORM STYLE =====
+            // ============================ FORM CHÍNH ============================
             this.Text = "Zalo Chat Server";
             this.Size = new Size(800, 520);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = ColorTranslator.FromHtml("#F5F7FA");
             this.Font = new Font("Segoe UI", 10);
 
-            // ===== HEADER =====
+            // ============================ HEADER ============================
             Panel header = new Panel()
             {
                 Dock = DockStyle.Top,
@@ -51,7 +51,7 @@ namespace ChatServer
             header.Controls.Add(lblTitle);
             this.Controls.Add(header);
 
-            // ===== BUTTON PANEL =====
+            // ============================ PANEL NÚT START/STOP ============================
             Panel buttonPanel = new Panel()
             {
                 Dock = DockStyle.Top,
@@ -59,23 +59,26 @@ namespace ChatServer
                 BackColor = Color.WhiteSmoke
             };
 
+            // Nút tạo bằng hàm CreateButton
             btnStart = CreateButton("▶ Start Server", ColorTranslator.FromHtml("#28a745"));
             btnStop = CreateButton("■ Stop Server", ColorTranslator.FromHtml("#dc3545"));
             btnViewHistory = CreateButton("🕓 View History", ColorTranslator.FromHtml("#007bff"));
-            btnStop.Enabled = false;
 
+            btnStop.Enabled = false;     // Chưa chạy server → tắt Stop
+
+            // Vị trí nút
             btnStart.Location = new Point(30, 15);
             btnStop.Location = new Point(170, 15);
             btnViewHistory.Location = new Point(310, 15);
 
+            // Sự kiện click
             btnStart.Click += BtnStart_Click;
             btnStop.Click += BtnStop_Click;
             btnViewHistory.Click += BtnViewHistory_Click;
-
-            buttonPanel.Controls.AddRange(new Control[] { btnStart, btnStop, btnViewHistory });
+buttonPanel.Controls.AddRange(new Control[] { btnStart, btnStop, btnViewHistory });
             this.Controls.Add(buttonPanel);
 
-            // ===== SERVER LOG =====
+            // ============================ LOG SERVER ============================
             GroupBox grpLog = new GroupBox()
             {
                 Text = "Server Logs",
@@ -84,6 +87,7 @@ namespace ChatServer
                 Size = new Size(500, 320),
                 BackColor = Color.White
             };
+
             txtLog = new TextBox()
             {
                 Multiline = true,
@@ -95,10 +99,11 @@ namespace ChatServer
                 ForeColor = Color.Black,
                 BorderStyle = BorderStyle.None
             };
+
             grpLog.Controls.Add(txtLog);
             this.Controls.Add(grpLog);
 
-            // ===== CLIENT LIST =====
+            // ============================ DANH SÁCH CLIENT ============================
             GroupBox grpClients = new GroupBox()
             {
                 Text = "Connected Users",
@@ -117,6 +122,9 @@ namespace ChatServer
             this.Controls.Add(grpClients);
         }
 
+        // ===================================================================
+        // TẠO MỘT BUTTON CÓ STYLE ĐẸP – TÁCH RIÊNG GIÚP CODE GỌN GÀNG
+        // ===================================================================
         private Button CreateButton(string text, Color color)
         {
             return new Button()
@@ -132,42 +140,59 @@ namespace ChatServer
             };
         }
 
+        // ===================================================================
+        // BẤM START SERVER
+        // ===================================================================
         private void BtnStart_Click(object sender, EventArgs e)
         {
-            Thread serverThread = new Thread(StartServer);
+            Thread serverThread = new Thread(StartServer); // Server chạy trên luồng riêng
             serverThread.IsBackground = true;
             serverThread.Start();
 
             AppendLog("✅ Server started on port 5000...");
             btnStart.Enabled = false;
-            btnStop.Enabled = true;
+btnStop.Enabled = true;
         }
 
+        // ===================================================================
+        // BẤM STOP SERVER
+        // ===================================================================
         private void BtnStop_Click(object sender, EventArgs e)
         {
-            isRunning = false;
-            listener?.Stop();
+            isRunning = false;      // Ngừng vòng lặp
+            listener?.Stop();       // Tắt TCP listener
+
+            // Đóng toàn bộ client
             lock (clients)
             {
                 foreach (var c in clients) c.Close();
                 clients.Clear();
                 clientNames.Clear();
             }
+
             pnlClients.Controls.Clear();
             AppendLog("🛑 Server stopped.");
+
             btnStart.Enabled = true;
             btnStop.Enabled = false;
         }
 
+        // ===================================================================
+        // XEM LỊCH SỬ CHAT (đọc file history.txt)
+        // ===================================================================
         private void BtnViewHistory_Click(object sender, EventArgs e)
         {
             string path = "history.txt";
-            if (!File.Exists(path))
+
+            if (!System.IO.File.Exists(path))
             {
                 MessageBox.Show("No chat history found.", "History");
                 return;
             }
-            string history = File.ReadAllText(path, Encoding.UTF8);
+
+            string history = System.IO.File.ReadAllText(path, Encoding.UTF8);
+
+            // Hiển thị lịch sử trong cửa sổ mới
             Form f = new Form()
             {
                 Text = "Chat History",
@@ -188,6 +213,9 @@ namespace ChatServer
             f.ShowDialog();
         }
 
+        // ===================================================================
+        // BẮT ĐẦU SERVER – LẮNG NGHE CLIENT MỚI
+        // ===================================================================
         void StartServer()
         {
             listener = new TcpListener(IPAddress.Any, 5000);
@@ -198,23 +226,29 @@ namespace ChatServer
             {
                 try
                 {
+                    // Chấp nhận client mới
                     TcpClient client = listener.AcceptTcpClient();
                     lock (clients) clients.Add(client);
+
                     AppendLog("🔌 A new client connected.");
 
+                    // Mỗi client chạy trên 1 thread riêng
                     Thread t = new Thread(HandleClient);
                     t.IsBackground = true;
                     t.Start(client);
                 }
-                catch { break; }
+catch { break; }
             }
         }
 
+        // ===================================================================
+        // XỬ LÝ MỘT CLIENT: ĐỌC TIN – CHECK FILE – CHECK TÊN – PRIVATE CHAT
+        // ===================================================================
         void HandleClient(object obj)
         {
             TcpClient client = (TcpClient)obj;
             NetworkStream stream = client.GetStream();
-            byte[] buffer = new byte[4096]; // Increased buffer size for file transfer
+            byte[] buffer = new byte[1024];
             int bytesRead;
 
             try
@@ -223,143 +257,126 @@ namespace ChatServer
                 {
                     string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
 
-                    // ===== FILE MESSAGE =====
+                    // ===================================================================
+                    // NHẬN FILE (FILE|sender|target|filename|size)
+                    // ===================================================================
                     if (message.StartsWith("FILE|"))
                     {
-                        ProcessFileTransfer(message, client, stream);
+                        string[] parts = message.Split('|');
+
+                        string senderName = parts[1];
+                        string target = parts[2];
+                        string fileName = parts[3];
+                        int fileSize = int.Parse(parts[4]);
+
+                        // Nhận dữ liệu file theo size gửi từ client
+                        byte[] fileBuffer = new byte[fileSize];
+                        int totalRead = 0;
+
+                        while (totalRead < fileSize)
+                        {
+                            int read = stream.Read(fileBuffer, totalRead, fileSize - totalRead);
+                            if (read == 0) break;
+                            totalRead += read;
+                        }
+
+                        AppendLog($"📎 {senderName} gửi file '{fileName}' đến {target}");
+
+                        // Gửi file đến tất cả
+                        if (target.Equals("ALL", StringComparison.OrdinalIgnoreCase))
+                        {
+                            BroadcastFile(message, fileBuffer, client);
+                        }
+                        else
+                        {
+                            // Gửi riêng
+                            TcpClient targetClient =
+                                clientNames.FirstOrDefault(x => x.Value.Equals(target, StringComparison.OrdinalIgnoreCase)).Key;
+
+                            if (targetClient != null)
+                                SendFileToClient(message, fileBuffer, targetClient);
+                            else
+                                SendToClient($"⚠️ User '{target}' không tồn tại.", client);
+                        }
                         continue;
                     }
 
-                    // ===== NAME REGISTRATION =====
+                    // ===================================================================
+                    // CLIENT GỬI TÊN (NAME:xxx) → CHECK TRÙNG
+// ===================================================================
                     if (message.StartsWith("NAME:"))
                     {
                         string name = message.Substring(5).Trim();
+
                         lock (clients)
                         {
+                            // Nếu tên trùng → báo lỗi
                             if (clientNames.Any(x => x.Value.Equals(name, StringComparison.OrdinalIgnoreCase)))
                             {
                                 SendToClient("⚠️ Name already in use!", client);
                                 continue;
                             }
+
+                            // Lưu tên cho client
                             clientNames[client] = name;
                         }
+
                         AppendLog($"👤 {name} connected.");
                         Broadcast($"{name} joined the chat.", client);
                         UpdateClientList();
                         continue;
                     }
 
+                    // Nếu không phải file + không phải tên → xử lý tin nhắn
                     ProcessMessage(message, client);
                 }
             }
             catch
             {
+                // Nếu client bị mất kết nối
                 if (clientNames.ContainsKey(client))
                 {
                     string name = clientNames[client];
                     AppendLog($"❌ {name} disconnected.");
                     Broadcast($"{name} left the chat.", client);
+
                     lock (clients)
                     {
                         clients.Remove(client);
                         clientNames.Remove(client);
                     }
+
                     UpdateClientList();
                 }
             }
         }
 
-        private void ProcessFileTransfer(string fileHeader, TcpClient sender, NetworkStream stream)
-        {
-            try
-            {
-                string[] parts = fileHeader.Split('|');
-                if (parts.Length >= 4)
-                {
-                    string senderName = parts[1];
-                    string fileName = parts[2];
-                    int fileSize = int.Parse(parts[3]);
-
-                    // Read the file data
-                    byte[] fileData = new byte[fileSize];
-                    int totalRead = 0;
-
-                    while (totalRead < fileSize)
-                    {
-                        int bytesToRead = Math.Min(4096, fileSize - totalRead);
-                        int bytesRead = stream.Read(fileData, totalRead, bytesToRead);
-                        if (bytesRead == 0) break;
-                        totalRead += bytesRead;
-                    }
-
-                    AppendLog($"📎 {senderName} sent file: {fileName} ({FormatFileSize(fileSize)})");
-
-                    // Check if it's a private file transfer or broadcast
-                    if (parts.Length >= 5)
-                    {
-                        string target = parts[4];
-                        if (!string.IsNullOrEmpty(target) && !target.Equals("ALL", StringComparison.OrdinalIgnoreCase))
-                        {
-                            // Private file transfer
-                            TcpClient targetClient = clientNames.FirstOrDefault(x =>
-                                x.Value.Equals(target, StringComparison.OrdinalIgnoreCase)).Key;
-                            if (targetClient != null)
-                            {
-                                SendFileToClient(fileHeader, fileData, targetClient);
-                                AppendLog($"📤 File sent privately to {target}");
-                            }
-                            else
-                            {
-                                SendToClient($"⚠️ User '{target}' not found.", sender);
-                            }
-                            return;
-                        }
-                    }
-
-                    // Broadcast file to all clients except sender
-                    BroadcastFile(fileHeader, fileData, sender);
-                }
-            }
-            catch (Exception ex)
-            {
-                AppendLog($"❌ File transfer error: {ex.Message}");
-            }
-        }
-
-        private string FormatFileSize(long bytes)
-        {
-            string[] sizes = { "B", "KB", "MB", "GB" };
-            int order = 0;
-            double len = bytes;
-            while (len >= 1024 && order < sizes.Length - 1)
-            {
-                order++;
-                len = len / 1024;
-            }
-            return $"{len:0.##} {sizes[order]}";
-        }
-
+        // ===================================================================
+        // XỬ LÝ TIN NHẮN BÌNH THƯỜNG + PRIVATE CHAT
+        // ===================================================================
         void ProcessMessage(string message, TcpClient sender)
         {
             string senderName = clientNames.ContainsKey(sender) ? clientNames[sender] : "Unknown";
 
+            // ===== PRIVATE CHAT (@user:message) =====
             if (message.StartsWith("@"))
             {
                 int colonIdx = message.IndexOf(':');
+
                 if (colonIdx > 1)
                 {
                     string target = message.Substring(1, colonIdx - 1);
                     string content = message.Substring(colonIdx + 1).Trim();
 
-                    TcpClient targetClient = clientNames.FirstOrDefault(x =>
-                        x.Value.Equals(target, StringComparison.OrdinalIgnoreCase)).Key;
+                    TcpClient targetClient =
+                        clientNames.FirstOrDefault(x => x.Value.Equals(target, StringComparison.OrdinalIgnoreCase)).Key;
 
                     if (targetClient != null)
                     {
                         string msg = $"[Private] {senderName} → {target}: {content}";
                         SendToClient(msg, targetClient);
                         SendToClient(msg, sender);
-                        AppendLog(msg);
+AppendLog(msg);
                     }
                     else
                     {
@@ -369,35 +386,48 @@ namespace ChatServer
                 }
             }
 
+            // ===== NGƯỜI GỬI → TIN NHẮN PUBLIC =====
             string normalMsg = $"{senderName}: {message}";
             AppendLog(normalMsg);
             Broadcast(normalMsg, sender);
         }
 
+        // ===================================================================
+        // GỬI TIN CHO TẤT CẢ TRỪ NGƯỜI GỬI
+        // ===================================================================
         void Broadcast(string message, TcpClient sender)
         {
             byte[] data = Encoding.UTF8.GetBytes(message);
-            lock (clients)
-            {
-                foreach (var c in clients)
-                    if (c != sender && c.Connected)
-                        try { c.GetStream().Write(data, 0, data.Length); } catch { }
-            }
-        }
 
-        void BroadcastFile(string header, byte[] fileBytes, TcpClient sender)
-        {
-            byte[] headerBytes = Encoding.UTF8.GetBytes(header);
             lock (clients)
             {
                 foreach (var c in clients)
                 {
-                    if (c != sender && c.Connected)
+                    if (c != sender)
+                    {
+                        try { c.GetStream().Write(data, 0, data.Length); } catch { }
+                    }
+                }
+            }
+        }
+
+        // ===================================================================
+        // GỬI FILE CHO TẤT CẢ
+        // ===================================================================
+        void BroadcastFile(string header, byte[] fileBytes, TcpClient sender)
+        {
+            byte[] headerBytes = Encoding.UTF8.GetBytes(header);
+
+            lock (clients)
+            {
+                foreach (var c in clients)
+                {
+                    if (c != sender)
                     {
                         try
                         {
                             c.GetStream().Write(headerBytes, 0, headerBytes.Length);
-                            Thread.Sleep(10); // Small delay to ensure header is processed
+                            Thread.Sleep(50);
                             c.GetStream().Write(fileBytes, 0, fileBytes.Length);
                         }
                         catch { }
@@ -406,34 +436,37 @@ namespace ChatServer
             }
         }
 
+        // ===================================================================
+        // GỬI FILE RIÊNG CHO 1 CLIENT
+        // ===================================================================
         void SendFileToClient(string header, byte[] fileBytes, TcpClient client)
         {
             try
             {
-                if (client.Connected)
-                {
-                    byte[] headerBytes = Encoding.UTF8.GetBytes(header);
-                    client.GetStream().Write(headerBytes, 0, headerBytes.Length);
-                    Thread.Sleep(10);
-                    client.GetStream().Write(fileBytes, 0, fileBytes.Length);
-                }
+                byte[] headerBytes = Encoding.UTF8.GetBytes(header);
+                client.GetStream().Write(headerBytes, 0, headerBytes.Length);
+                Thread.Sleep(50);
+                client.GetStream().Write(fileBytes, 0, fileBytes.Length);
             }
             catch { }
         }
 
+        // ===================================================================
+        // GỬI TIN NHẮN RIÊNG CHO 1 CLIENT
+        // ===================================================================
         void SendToClient(string message, TcpClient client)
         {
             try
             {
-                if (client.Connected)
-                {
-                    byte[] data = Encoding.UTF8.GetBytes(message);
-                    client.GetStream().Write(data, 0, data.Length);
-                }
+                byte[] data = Encoding.UTF8.GetBytes(message);
+client.GetStream().Write(data, 0, data.Length);
             }
             catch { }
         }
 
+        // ===================================================================
+        // GHI LOG + LƯU VÀO FILE history.txt
+        // ===================================================================
         void AppendLog(string msg)
         {
             if (txtLog.InvokeRequired)
@@ -441,18 +474,25 @@ namespace ChatServer
                 txtLog.Invoke(new Action(() => AppendLog(msg)));
                 return;
             }
+
             txtLog.AppendText(msg + Environment.NewLine);
             txtLog.ScrollToCaret();
             SaveToHistory(msg);
         }
 
+        // Lưu log vào history.txt
         void SaveToHistory(string msg)
         {
             string path = "history.txt";
             string line = $"[{DateTime.Now:dd/MM/yyyy HH:mm:ss}] {msg}";
-            try { File.AppendAllText(path, line + Environment.NewLine, Encoding.UTF8); } catch { }
+
+            try { System.IO.File.AppendAllText(path, line + Environment.NewLine, Encoding.UTF8); }
+            catch { }
         }
 
+        // ===================================================================
+        // CẬP NHẬT DANH SÁCH CLIENT TRÊN GIAO DIỆN
+        // ===================================================================
         void UpdateClientList()
         {
             if (pnlClients.InvokeRequired)
@@ -460,11 +500,14 @@ namespace ChatServer
                 pnlClients.Invoke(new Action(UpdateClientList));
                 return;
             }
+
             pnlClients.Controls.Clear();
+
             lock (clients)
             {
                 foreach (var name in clientNames.Values)
                 {
+                    // Card hiển thị tên client
                     Panel card = new Panel()
                     {
                         Width = 180,
@@ -474,6 +517,7 @@ namespace ChatServer
                         Padding = new Padding(8),
                         BorderStyle = BorderStyle.FixedSingle
                     };
+
                     Label lbl = new Label()
                     {
                         Text = name,
@@ -482,17 +526,11 @@ namespace ChatServer
                         Font = new Font("Segoe UI", 10, FontStyle.Bold),
                         ForeColor = ColorTranslator.FromHtml("#007BFF")
                     };
+
                     card.Controls.Add(lbl);
                     pnlClients.Controls.Add(card);
                 }
             }
-        }
-
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            isRunning = false;
-            listener?.Stop();
-            base.OnFormClosing(e);
         }
     }
 }
